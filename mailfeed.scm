@@ -1,14 +1,18 @@
 
-(import datatype smtp abnf srfi-1 (chicken format) symbol-utils)
+(import (chicken format)
+        datatype
+        smtp
+        abnf
+        srfi-1
+        symbol-utils)
 
-
-(define domain    "example.net")
+(define domain    "mailfeed.xyz")
 (define host      "chicken-mta")
 (define mailfrom  (make-parameter #f))
 (define rcpto     (make-parameter '()))
 (define data      (make-parameter #f))
-(define process-message (make-parameter
-                         (lambda (peer mailfrom rcptos data) '())))
+(define process-message-procedure (make-parameter
+                                   (lambda (peer mailfrom rcptos data) '())))
 
 (define (handle-event ev)
   (cases event ev
@@ -127,7 +131,7 @@
     (let ((line (read-smtp-line in)))
       (if (equal? line data-end)
 	  (begin (data (reverse tempdata))
-                 (let* ((message-handler (process-message))
+                 (let* ((message-handler (process-message-procedure))
                         (maybe-reply (message-handler '() (mailfrom) (rcpto) (data)))
                         (reply (if (or (null? maybe-reply) (unspecified? maybe-reply))
                                    (Reply (Code (Success) (MailSystem) 0) (list "OK"))
@@ -179,14 +183,14 @@
 #;(main (open-input-string "EHLO bar.com\r\nQUIT\r\n") (current-output-port))
 #;(main (open-input-string (string-concatenate rfc-D.1)) (current-output-port))
 
-(process-message (lambda (peer mailfrom rcptos data)
-                   (print "peer:")
-                   (print peer)
-                   (print "mailfrom:")
-                   (print mailfrom)
-                   (print "rcptos")
-                   (print rcptos)
-                   (print "the data:")
-                   (print data)))
+(process-message-procedure (lambda (peer mailfrom rcptos data)
+                             (print "peer:")
+                             (print peer)
+                             (print "mailfrom:")
+                             (print mailfrom)
+                             (print "rcptos")
+                             (print rcptos)
+                             (print "the data:")
+                             (print data)))
 
 (main (open-input-string (string-concatenate rfc-D.1)) (current-output-port))
