@@ -30,6 +30,8 @@
         (set! verbose name)
         ((make-tcp-server
           (tcp-listen port)
+          ;; TODO: This needs some error handling, as right now it just fails
+          ;; without ever cleaning up the thread.
           (lambda ()
             (fprintf (current-output-port) "~A" connect-message)
             (smtp-mta (current-input-port) (current-output-port))))
