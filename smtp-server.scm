@@ -31,6 +31,6 @@
         ((make-tcp-server
           (tcp-listen port)
           (lambda ()
-            (format (current-error-port) "in server\n")
             (fprintf (current-output-port) "~A" connect-message)
-            (smtp-mta (current-input-port) (current-output-port)))) name)))))
+            (smtp-mta (current-input-port) (current-output-port))))
+         name)))))
