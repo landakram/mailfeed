@@ -1,4 +1,4 @@
-(include "smtp-mta")
+(include "smtp-server")
 
 ;; Test stuff
 
@@ -16,17 +16,17 @@
     "QUIT\r\n"
     ))
 
-#;(main (open-input-string "EHLO bar.com\r\nQUIT\r\n") (current-output-port))
+;; (smtp-mta (open-input-string "EHLO example.com\r\nQUIT\r\n") (current-output-port))
+;; (smtp-mta (open-input-string "EHLO [127.0.0.2]\r\nQUIT\r\n") (current-output-port))
 #;(main (open-input-string (string-concatenate rfc-D.1)) (current-output-port))
 
-(process-message-procedure (lambda (peer mailfrom rcptos data)
-                             (print "peer:")
-                             (print peer)
-                             (print "mailfrom:")
-                             (print mailfrom)
-                             (print "rcptos")
-                             (print rcptos)
-                             (print "the data:")
-                             (print data)))
+(define (process-message peer mailfrom rcptos data)
+  '())
+(define (process-message peer mailfrom rcptos data)
+  ((logger) "peer: ~S" peer)
+  ((logger) "mailfrom: ~S" mailfrom)
+  ((logger) "rcptos: ~S" rcptos)
+  ((logger) "data: ~S" data))
 
-(smtp-mta (open-input-string (string-concatenate rfc-D.1)) (current-output-port))
+(define smtp-server (make-smtp-server 6504 process-message))
+(smtp-server #t)
